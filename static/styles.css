@@ -1,0 +1,236 @@
+:root {
+    --primary-color: #4a90e2;
+    --secondary-color: #50e3c2;
+    --background-color: #f5f7fa;
+    --text-color: #333;
+    --error-color: #e74c3c;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.container {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    max-width: 600px;
+    width: 100%;
+}
+
+header {
+    margin-bottom: 2rem;
+}
+
+h1 {
+    color: var(--primary-color);
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+h2, h3 {
+    color: var(--text-color);
+    margin-bottom: 1rem;
+}
+
+.file-input {
+    margin-bottom: 1rem;
+}
+
+input[type="file"] {
+    display: none;
+}
+
+label[for="file"], button {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.1s;
+    display: inline-block;
+    font-size: 1rem;
+    border: none;
+    outline: none;
+}
+
+label[for="file"]:hover, button:hover {
+    background-color: #3a7bc8;
+    transform: translateY(-2px);
+}
+
+label[for="file"]:active, button:active {
+    transform: translateY(0);
+}
+
+.image-container {
+    position: relative;
+    margin: 1rem 0;
+    max-width: 100%;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+#processedImage {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+.thumbnail {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+#originalImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.download-options {
+    margin-top: 1rem;
+}
+
+.download-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.download-btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    border-radius: 50px;
+}
+
+.download-btn.png { background-color: #27ae60; }
+.download-btn.jpeg { background-color: #e67e22; }
+.download-btn.webp { background-color: #8e44ad; }
+
+.download-btn:hover {
+    filter: brightness(1.1);
+}
+
+.error {
+    color: var(--error-color);
+    margin-top: 1rem;
+}
+
+#loading, .loading {
+    position: relative;
+    color: var(--primary-color);
+    font-weight: bold;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    width: 1em;
+    height: 1em;
+    top: 50%;
+    left: 50%;
+    margin-top: -0.5em;
+    margin-left: -0.5em;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.hidden {
+    display: none;
+}
+
+#preview-container {
+    margin: 1rem 0;
+    max-width: 100%;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+#preview {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Add these styles to your existing CSS file */
+.options {
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.options label {
+    margin-top: 0.5rem;
+}
+
+.options input[type="range"],
+.options select,
+.options input[type="color"] {
+    margin-top: 0.25rem;
+    width: 200px;
+}
+
+.acknowledgements {
+    font-size: 0.6rem;
+    color: rgba(255, 255, 255, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.6;
+    transition: opacity 0.3s;
+    background-color: rgba(0, 0, 0, 0.2);
+    padding: 3px 8px;
+    border-radius: 12px;
+    margin-top: 1.5rem;
+}
+
+.acknowledgements:hover {
+    opacity: 0.8;
+}
+
+.acknowledgements i {
+    margin-right: 4px;
+    cursor: help;
+    font-size: 0.7rem;
+}
+
+.acknowledgements-text {
+    display: inline;
+}
+
+.acknowledgements a {
+    color: rgba(255, 255, 255, 0.6);
+    text-decoration: none;
+}
+
+.acknowledgements a:hover {
+    text-decoration: underline;
+    color: rgba(255, 255, 255, 0.8);
+}

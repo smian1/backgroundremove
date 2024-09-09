@@ -1,0 +1,5 @@
+Flask==2.3.2
+Pillow==10.0.0
+transparent-background==1.2.9
+Werkzeug==2.3.6
+pillow-heif==0.10.0

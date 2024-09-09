@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Background Remover</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3B82F6',
+                        secondary: '#10B981',
+                        accent: '#8B5CF6',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-900 to-gray-800 text-white min-h-screen flex items-center justify-center font-sans">
+    <div class="container mx-auto max-w-3xl bg-gray-800 p-8 rounded-xl shadow-2xl">
+        <header class="text-center mb-8">
+            <h1 class="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
+                <i class="fas fa-magic mr-2"></i> Background Remover
+            </h1>
+        </header>
+        <main>
+            <form id="uploadForm" class="mb-6">
+                <div class="mb-4">
+                    <div id="dropZone" class="border-2 border-dashed border-gray-600 rounded-lg p-8 text-center cursor-pointer hover:border-primary transition duration-300">
+                        <input type="file" name="file" id="file" accept="image/*,.heic" required class="hidden">
+                        <label for="file" class="cursor-pointer">
+                            <i class="fas fa-cloud-upload-alt text-4xl mb-2"></i>
+                            <p>Drag & Drop your image here or click to browse</p>
+                        </label>
+                    </div>
+                </div>
+                <div id="preview-container" class="hidden mb-4">
+                    <img id="preview" src="" alt="Preview" class="max-w-full h-auto rounded-lg shadow-lg transition duration-300 hover:shadow-xl">
+                </div>
+                <button type="submit" id="submitBtn" class="w-full bg-gradient-to-r from-primary to-secondary text-white font-bold py-3 px-6 rounded-lg transition duration-300 hover:shadow-lg transform hover:-translate-y-1">
+                    <i class="fas fa-eraser mr-2"></i> Remove Background
+                </button>
+            </form>
+            <div id="uploadLoading" class="hidden text-center text-primary font-bold">
+                <i class="fas fa-spinner fa-spin mr-2"></i> Uploading image...
+            </div>
+            <div id="loading" class="hidden">
+                <div class="text-center text-primary font-bold mb-2">
+                    <i class="fas fa-spinner fa-spin mr-2"></i> Processing image...
+                </div>
+                <div class="w-full bg-gray-700 rounded-full h-2.5">
+                    <div id="progress" class="bg-primary h-2.5 rounded-full" style="width: 0%"></div>
+                </div>
+            </div>
+            <div id="result" class="hidden">
+                <h2 class="text-2xl font-bold mb-4 text-center">Processed Image</h2>
+                <div class="relative mb-4 group">
+                    <img id="processedImage" src="" alt="Processed Image" class="max-w-full h-auto rounded-lg shadow-lg transition duration-300 group-hover:shadow-xl">
+                    <div class="absolute bottom-2 right-2 w-20 h-20 rounded-lg overflow-hidden shadow-lg transition duration-300 group-hover:w-32 group-hover:h-32">
+                        <img id="originalImage" src="" alt="Original Image" class="w-full h-full object-cover">
+                    </div>
+                </div>
+                <div class="text-center">
+                    <h3 class="text-xl font-bold mb-2">Download Options</h3>
+                    <div class="flex justify-center space-x-4 mb-4">
+                        <button onclick="downloadImage('PNG')" class="bg-transparent border border-primary text-primary hover:bg-primary hover:text-white font-bold py-2 px-4 rounded-lg transition duration-300">
+                            <i class="fas fa-file-image mr-2"></i> PNG
+                        </button>
+                        <button onclick="downloadImage('JPEG')" class="bg-transparent border border-secondary text-secondary hover:bg-secondary hover:text-white font-bold py-2 px-4 rounded-lg transition duration-300">
+                            <i class="fas fa-file-image mr-2"></i> JPEG
+                        </button>
+                        <button onclick="downloadImage('WEBP')" class="bg-transparent border border-accent text-accent hover:bg-accent hover:text-white font-bold py-2 px-4 rounded-lg transition duration-300">
+                            <i class="fas fa-file-image mr-2"></i> WebP
+                        </button>
+                    </div>
+                    <button id="startOverBtn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300">
+                        <i class="fas fa-redo mr-2"></i> Start Over
+                    </button>
+                </div>
+            </div>
+            <p id="error" class="hidden text-red-500 font-bold mt-4 text-center"></p>
+        </main>
+        
+        <!-- Move the acknowledgements inside the main container -->
+        <div class="acknowledgements mt-8">
+            <i class="fas fa-info-circle" title="GitHub Projects Used"></i>
+            <span class="acknowledgements-text">
+                Using <a href="https://github.com/plemeri/transparent-background" target="_blank">transparent-background</a> and 
+                <a href="https://github.com/bigcat88/pillow_heif" target="_blank">pillow-heif</a>
+            </span>
+        </div>
+    </div>
+
+    <script>
+        // Add this new code at the beginning of the script section
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('file');
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight(e) {
+            dropZone.classList.add('border-primary');
+        }
+
+        function unhighlight(e) {
+            dropZone.classList.remove('border-primary');
+        }
+
+        dropZone.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            fileInput.files = files;
+            handleFiles(files);
+        }
+
+        function handleFiles(files) {
+            if (files.length > 0) {
+                fileInput.files = files;
+                fileInput.dispatchEvent(new Event('change'));
+            }
+        }
+
+        function resetForm() {
+            document.getElementById('preview-container').classList.add('hidden');
+            document.getElementById('result').classList.add('hidden');
+            document.getElementById('error').classList.add('hidden');
+            document.getElementById('uploadForm').dataset.filepath = '';
+            document.getElementById('processedImage').src = '';
+            document.getElementById('originalImage').src = '';
+            // Remove this line: document.getElementById('file').value = '';
+        }
+
+        document.getElementById('startOverBtn').addEventListener('click', function() {
+            resetForm();
+            document.getElementById('dropZone').classList.remove('border-primary');
+            document.getElementById('file').value = ''; // Reset file input here
+            document.getElementById('uploadForm').classList.remove('hidden'); // Show the upload form again
+        });
+
+        // Modify the existing 'change' event listener for the file input
+        document.getElementById('file').addEventListener('change', function(event) {
+            // Remove this line: resetForm(); // Reset the form when a new file is selected
+            
+            // Show upload loading indicator
+            document.getElementById('uploadLoading').classList.remove('hidden');
+
+            var file = event.target.files[0];
+            console.log('File selected:', file);
+
+            var formData = new FormData();
+            formData.append('file', file);
+            
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Server response:', data);
+                // Hide upload loading indicator
+                document.getElementById('uploadLoading').classList.add('hidden');
+                
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                document.getElementById('preview').src = 'data:image/png;base64,' + data.preview;
+                document.getElementById('originalImage').src = 'data:image/png;base64,' + data.preview;
+                document.getElementById('preview-container').classList.remove('hidden');
+                document.getElementById('uploadForm').dataset.filepath = data.filepath;
+            })
+            .catch(error => {
+                console.error('Error details:', error);
+                // Hide upload loading indicator
+                document.getElementById('uploadLoading').classList.add('hidden');
+                
+                console.error('Error:', error);
+                document.getElementById('error').textContent = error.message;
+                document.getElementById('error').classList.remove('hidden');
+            });
+        });
+
+        document.getElementById('uploadForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            const filepath = this.dataset.filepath;
+            if (!filepath) {
+                console.error('No image uploaded');
+                document.getElementById('error').textContent = 'Please upload an image first.';
+                document.getElementById('error').classList.remove('hidden');
+                return;
+            }
+
+            document.getElementById('submitBtn').classList.add('loading');
+            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('result').classList.add('hidden');
+            document.getElementById('error').classList.add('hidden');
+
+            fetch('/process', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({filepath: filepath})
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('submitBtn').classList.remove('loading');
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                document.getElementById('processedImage').src = 'data:image/png;base64,' + data.image;
+                document.getElementById('processedImage').dataset.id = data.id;
+                document.getElementById('result').classList.remove('hidden');
+                document.getElementById('preview-container').classList.add('hidden');
+                document.getElementById('uploadForm').classList.add('hidden'); // Hide the upload form
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('submitBtn').classList.remove('loading');
+                document.getElementById('error').textContent = error.message;
+                document.getElementById('error').classList.remove('hidden');
+            });
+        });
+
+        function downloadImage(format) {
+            const button = event.currentTarget;
+            button.classList.add('loading');
+            const imageId = document.getElementById('processedImage').dataset.id;
+            const url = `/download/${imageId}/${format}`;
+            
+            fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.blob();
+            })
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = `background_removed.${format.toLowerCase()}`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                button.classList.remove('loading');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while downloading the image. Please try again.');
+                button.classList.remove('loading');
+            });
+        }
+    </script>
+</body>
+</html>
