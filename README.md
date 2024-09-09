@@ -10,6 +10,16 @@ This is a Flask-based web application that allows users to upload an image, remo
 - Download processed images in PNG, JPEG, or WebP formats
 - Responsive and user-friendly interface
 
+## Screenshots
+
+Here are some screenshots of the Background Remover Web App in action:
+
+### Original Image Upload
+![Original Image Upload](static/1.jpeg)
+
+### Processed Image with Background Removed
+![Processed Image](static/2.jpeg)
+
 ## Prerequisites
 
 - Python 3.7 or higher
