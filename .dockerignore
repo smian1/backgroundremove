@@ -1,0 +1,60 @@
+uploads/
+
+# Version control
+.git
+.gitignore
+
+# Node.js
+node_modules
+npm-debug.log
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Development and IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Build outputs
+dist/
+build/
+*.egg-info/
+
+# Logs
+*.log
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Docker
+Dockerfile
+docker-compose.yml
+
+# Documentation
+README.md
+docs/
+
+# Test files
+test/
+tests/
+
+# Temporary files
+*.tmp
+*.bak

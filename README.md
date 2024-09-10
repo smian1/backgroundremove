@@ -71,6 +71,26 @@ Here are some screenshots of the Background Remover Web App in action:
 
 6. Once processed, you can download the result in PNG, JPEG, or WebP format
 
+## Running with Docker Compose
+
+To run the application using Docker Compose, follow these steps:
+
+1. Make sure you have Docker and Docker Compose installed on your system.
+
+2. Build and start the Docker container:
+
+   ```
+   docker compose up --build
+   ```
+
+3. Open your browser and navigate to `http://localhost:8088` to access the application.
+
+4. To stop the container, press `Ctrl+C` in the terminal where Docker Compose is running, or run:
+
+   ```
+   docker compose down
+   ```
+
 ## Project Structure
 
 - `app.py`: Main Flask application
@@ -99,3 +119,4 @@ Contributions, issues, and feature requests are welcome. Feel free to check [iss
 
 - [transparent-background](https://github.com/plemeri/transparent-background) for the background removal functionality
 - [pillow-heif](https://github.com/bigcat88/pillow_heif) for HEIC image support
+

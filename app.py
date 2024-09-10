@@ -271,4 +271,8 @@ def process():
 
 if __name__ == '__main__':
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+<<<<<<< HEAD
+    app.run(debug=True, host='0.0.0.0', port=5000)
+=======
     app.run(host='0.0.0.0', port=8080, debug=True)
+>>>>>>> c443152d9574b52dcf02d4094b813274dbc16359
