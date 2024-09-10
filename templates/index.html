@@ -36,11 +36,11 @@
         <main>
             <form id="uploadForm" class="mb-6">
                 <div class="mb-4">
-                    <div id="dropZone" class="border-2 border-dashed border-gray-600 rounded-lg p-8 text-center cursor-pointer hover:border-primary transition duration-300">
-                        <input type="file" name="file" id="file" accept="image/*,.heic" required class="hidden">
+                    <div id="dropZone" class="border-2 border-dashed border-gray-600 rounded-lg p-8 text-center cursor-pointer hover:border-primary transition duration-300" tabindex="0">
+                        <input type="file" name="file" id="file" accept="image/*,.heic" class="hidden">
                         <label for="file" class="cursor-pointer">
                             <i class="fas fa-cloud-upload-alt text-4xl mb-2"></i>
-                            <p>Drag & Drop your image here or click to browse</p>
+                            <p>Drag & Drop your image here, click to browse, or paste from clipboard</p>
                         </label>
                     </div>
                 </div>
@@ -102,77 +102,53 @@
     </div>
 
     <script>
-        // Add this new code at the beginning of the script section
         const dropZone = document.getElementById('dropZone');
         const fileInput = document.getElementById('file');
+        const uploadForm = document.getElementById('uploadForm');
+        let currentFilePath = null;
 
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, preventDefaults, false);
-        });
+        // Add paste event listener to the document
+        document.addEventListener('paste', handlePaste);
 
-        function preventDefaults(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-
-        ['dragenter', 'dragover'].forEach(eventName => {
-            dropZone.addEventListener(eventName, highlight, false);
-        });
-
-        ['dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, unhighlight, false);
-        });
-
-        function highlight(e) {
-            dropZone.classList.add('border-primary');
-        }
-
-        function unhighlight(e) {
-            dropZone.classList.remove('border-primary');
-        }
-
-        dropZone.addEventListener('drop', handleDrop, false);
-
-        function handleDrop(e) {
-            const dt = e.dataTransfer;
-            const files = dt.files;
-            fileInput.files = files;
-            handleFiles(files);
+        function handlePaste(event) {
+            console.log('Paste event triggered');
+            const items = (event.clipboardData || event.originalEvent.clipboardData).items;
+            for (let index in items) {
+                const item = items[index];
+                console.log('Pasted item type:', item.type);
+                if (item.type.indexOf('image') !== -1) {
+                    const blob = item.getAsFile();
+                    console.log('Image blob:', blob);
+                    handleFiles([blob]);
+                    break;
+                }
+            }
         }
 
         function handleFiles(files) {
             if (files.length > 0) {
-                fileInput.files = files;
-                fileInput.dispatchEvent(new Event('change'));
+                const file = files[0];
+                if (file.type.startsWith('image/')) {
+                    console.log('Handling image file:', file.name);
+                    // Update preview immediately
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        document.getElementById('preview').src = e.target.result;
+                        document.getElementById('originalImage').src = e.target.result;
+                        document.getElementById('preview-container').classList.remove('hidden');
+                    }
+                    reader.readAsDataURL(file);
+                    // Then upload
+                    uploadFile(file);
+                } else {
+                    alert('Please paste an image file.');
+                }
             }
         }
 
-        function resetForm() {
-            document.getElementById('preview-container').classList.add('hidden');
-            document.getElementById('result').classList.add('hidden');
-            document.getElementById('error').classList.add('hidden');
-            document.getElementById('uploadForm').dataset.filepath = '';
-            document.getElementById('processedImage').src = '';
-            document.getElementById('originalImage').src = '';
-            // Remove this line: document.getElementById('file').value = '';
-        }
-
-        document.getElementById('startOverBtn').addEventListener('click', function() {
-            resetForm();
-            document.getElementById('dropZone').classList.remove('border-primary');
-            document.getElementById('file').value = ''; // Reset file input here
-            document.getElementById('uploadForm').classList.remove('hidden'); // Show the upload form again
-        });
-
-        // Modify the existing 'change' event listener for the file input
-        document.getElementById('file').addEventListener('change', function(event) {
-            // Remove this line: resetForm(); // Reset the form when a new file is selected
-            
+        function uploadFile(file) {
             // Show upload loading indicator
             document.getElementById('uploadLoading').classList.remove('hidden');
-
-            var file = event.target.files[0];
-            console.log('File selected:', file);
 
             var formData = new FormData();
             formData.append('file', file);
@@ -190,10 +166,8 @@
                 if (data.error) {
                     throw new Error(data.error);
                 }
-                document.getElementById('preview').src = 'data:image/png;base64,' + data.preview;
-                document.getElementById('originalImage').src = 'data:image/png;base64,' + data.preview;
-                document.getElementById('preview-container').classList.remove('hidden');
-                document.getElementById('uploadForm').dataset.filepath = data.filepath;
+                currentFilePath = data.filepath;
+                console.log('Filepath set:', currentFilePath);
             })
             .catch(error => {
                 console.error('Error details:', error);
@@ -204,13 +178,29 @@
                 document.getElementById('error').textContent = error.message;
                 document.getElementById('error').classList.remove('hidden');
             });
+        }
+
+        function resetForm() {
+            document.getElementById('preview-container').classList.add('hidden');
+            document.getElementById('result').classList.add('hidden');
+            document.getElementById('error').classList.add('hidden');
+            currentFilePath = null;
+            document.getElementById('processedImage').src = '';
+            document.getElementById('originalImage').src = '';
+        }
+
+        document.getElementById('startOverBtn').addEventListener('click', function() {
+            resetForm();
+            dropZone.classList.remove('border-primary');
+            fileInput.value = ''; // Reset file input here
+            uploadForm.classList.remove('hidden'); // Show the upload form again
         });
 
-        document.getElementById('uploadForm').addEventListener('submit', function(event) {
+        uploadForm.addEventListener('submit', function(event) {
             event.preventDefault();
             
-            const filepath = this.dataset.filepath;
-            if (!filepath) {
+            console.log('Submitting form with filepath:', currentFilePath);
+            if (!currentFilePath) {
                 console.error('No image uploaded');
                 document.getElementById('error').textContent = 'Please upload an image first.';
                 document.getElementById('error').classList.remove('hidden');
@@ -227,7 +217,7 @@
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({filepath: filepath})
+                body: JSON.stringify({filepath: currentFilePath})
             })
             .then(response => response.json())
             .then(data => {

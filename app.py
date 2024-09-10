@@ -193,6 +193,10 @@ def upload():
     
     if file:
         try:
+            # Generate a unique filename for pasted images
+            if file.filename == 'blob':
+                file.filename = f"pasted_image_{uuid.uuid4()}.png"
+
             filename = secure_filename(file.filename)
             filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(filepath)
@@ -267,4 +271,8 @@ def process():
 
 if __name__ == '__main__':
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+<<<<<<< HEAD
     app.run(debug=True, host='0.0.0.0', port=5000)
+=======
+    app.run(host='0.0.0.0', port=8080, debug=True)
+>>>>>>> c443152d9574b52dcf02d4094b813274dbc16359

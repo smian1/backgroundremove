@@ -1,11 +1,12 @@
 # Background Remover Web App
 
-This is a Flask-based web application that allows users to upload an image, remove its background, and download the result in various formats. It supports multiple image formats, including HEIC.
+This is a Flask-based web application that allows users to upload or paste an image, remove its background, and download the result in various formats. It supports multiple image formats, including HEIC.
 
 ## Features
 
 - Upload images (including HEIC format)
-- Preview uploaded images before processing
+- Paste images directly from clipboard
+- Preview uploaded/pasted images before processing
 - Remove background from images
 - Download processed images in PNG, JPEG, or WebP formats
 - Responsive and user-friendly interface
@@ -62,9 +63,9 @@ Here are some screenshots of the Background Remover Web App in action:
 
 2. Open a web browser and navigate to `http://localhost:5000`
 
-3. Upload an image using the "Choose an image" button
+3. Upload an image using the "Choose an image" button or paste an image directly from your clipboard
 
-4. Preview the uploaded image
+4. Preview the uploaded/pasted image
 
 5. Click "Remove Background" to process the image
 
